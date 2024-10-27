@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&#x6df1;&#x5ea6;&#x5b66;&#x4e60;&#x4e0e;&#x8ba1;&#x7b97;&#x673a;&#x89c6;&#x89c9;&#x5b9e;&#x9a8c;&#x4e09;&#xff1a; CIFAR-ViT</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="深度学习与计算机视觉实验三-cifar-vit">深度学习与计算机视觉实验三： CIFAR-ViT</h1>
+<center>
+<div class="is-size-5 publication-authors">
+<span class="author-block">
+  <b style="font-size: 20px;">宁毓伟</b><sup></sup>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>
+<span class="author-block">
+  <b style="font-size: 20px;">杨进岳</b><sup>*</sup></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="author-block">
+  <b style="font-size: 20px;">张子陆</b><sup>*</sup>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>
+<span class="author-block">
+  <b style="font-size: 20px;">张圣权</b><sup>*</sup>
+</span>
+</div>
+</center>
+<center>
+<div>
+<p style="font-size: 16px;"><sup>*</sup>表示同等贡献</p>
+</div>
+</center>
+<blockquote>
+<p>分工：</p>
+<ul>
+<li>宁毓伟(U202115325)：写代码、做实验、写报告。</li>
+<li>杨进岳(U202114049)：写一点代码。</li>
+<li>张子陆(U202115070)：做一点实验。</li>
+<li>张圣权(U202112179)：写一点报告。</li>
+</ul>
+<p>工作量不好量化，因此确切的组内贡献比例无法给出。望老师海涵。</p>
+</blockquote>
+<h2 id="vision-transformer网络的介绍与实现要求21必做部分">Vision Transformer网络的介绍与实现（要求2.1，必做部分）</h2>
+<blockquote>
+<p>相关代码位于 <code>vit.py</code> 文件中。</p>
+</blockquote>
+<p>Vision Transformer 共包含有以下几个主要模块：</p>
+<ol>
+<li>Multi-head Self-Attention (MSA)</li>
+<li>Feed Forward Network (FFN)</li>
+<li>Patch Embedding</li>
+<li>Normalization Layer</li>
+</ol>
+<p>[💡]本文的实现与文章 <em>An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale</em> 中的实现有所不同：</p>
+<ol>
+<li>本文并未使用 Class token, 这一点与其同时期的另一篇文章 <em>Swin Transformer: Hierarchical Vision Transformer using Shifted Windows</em> 保持一致。</li>
+<li>本文使用的Normalization Layer是BatchNorm2d，而不是LayerNorm。</li>
+</ol>
+<p>在本章节中，我会详细介绍这几个模块的实现。</p>
+<h3 id="multi-head-self-attention-msa">Multi-head Self-Attention (MSA)</h3>
+<p>Self-Attention 是 Transformer 中的核心模块，它能够捕捉输入序列中不同位置之间的依赖关系。Attention 的计算过程如下：</p>
+<p class="katex-block"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>Attention</mtext><mo stretchy="false">(</mo><mi>Q</mi><mo separator="true">,</mo><mi>K</mi><mo separator="true">,</mo><mi>V</mi><mo stretchy="false">)</mo><mo>=</mo><mtext>softmax</mtext><mrow><mo fence="true">(</mo><mfrac><mrow><mi>Q</mi><msup><mi>K</mi><mi>T</mi></msup></mrow><msqrt><msub><mi>d</mi><mi>k</mi></msub></msqrt></mfrac><mo fence="true">)</mo></mrow><mi>V</mi></mrow><annotation encoding="application/x-tex">\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">Attention</span></span><span class="mopen">(</span><span class="mord mathnormal">Q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.4684em;vertical-align:-0.95em;"></span><span class="mord text"><span class="mord">softmax</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.5183em;"><span style="top:-2.2528em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8572em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord"><span class="mord mathnormal">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-2.8172em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1828em;"><span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">Q</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8413em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.93em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span></span></span></span></span></p>
+<p>其中 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo separator="true">,</mo><mi>K</mi><mo separator="true">,</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">Q, K, V</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">Q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span></span></span></span> 分别代表 Query, Key, Value，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">d_k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 代表 Key 的维度。在实际应用中，我们通常会将 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo separator="true">,</mo><mi>K</mi><mo separator="true">,</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">Q, K, V</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">Q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span></span></span></span> 分别通过线性变换得到 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>Q</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo separator="true">,</mo><msup><mi>K</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo separator="true">,</mo><msup><mi>V</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup></mrow><annotation encoding="application/x-tex">Q&#x27;, K&#x27;, V&#x27;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9463em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">Q</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7519em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7519em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7519em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span>，然后再进行 Attention 的计算。对于 Multi-head Self-Attention，我们会将 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo separator="true">,</mo><mi>K</mi><mo separator="true">,</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">Q, K, V</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">Q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span></span></span></span> 分别通过 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi></mrow><annotation encoding="application/x-tex">h</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">h</span></span></span></span> 个线性变换得到 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mi>i</mi></msub><mo separator="true">,</mo><msub><mi>K</mi><mi>i</mi></msub><mo separator="true">,</mo><msub><mi>V</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">Q_i, K_i, V_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">Q</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，然后将 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi></mrow><annotation encoding="application/x-tex">h</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">h</span></span></span></span> 个 Attention 的结果拼接起来，再通过一个线性变换得到最终的输出。</p>
+<pre><code class="language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Attention</span>(nn.Module):
+    <span class="hljs-string">&quot;&quot;&quot;
+    Attention for images
+    Input:
+        - x: (B, C, H, W), already patched
+    Output:
+        - x: (B, C, H, W)
+    &quot;&quot;&quot;</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">
+            self,
+            in_channels: <span class="hljs-built_in">int</span>,
+            num_heads: <span class="hljs-built_in">int</span>,
+            dropout: <span class="hljs-built_in">float</span> = <span class="hljs-number">0.0</span>
+        </span>):
+        <span class="hljs-keyword">assert</span> in_channels % num_heads == <span class="hljs-number">0</span>, \
+            <span class="hljs-string">f&quot;in_channels(got <span class="hljs-subst">{in_channels}</span>) must be divisible by num_heads(got <span class="hljs-subst">{num_heads}</span>)&quot;</span>
+
+        <span class="hljs-built_in">super</span>().__init__()
+        self.qkv_transform = nn.Conv2d(
+            in_channels=in_channels,
+            out_channels=in_channels * <span class="hljs-number">3</span>,
+            kernel_size=<span class="hljs-number">1</span>,
+            stride=<span class="hljs-number">1</span>,
+            padding=<span class="hljs-number">0</span>,
+            bias=<span class="hljs-literal">False</span>,
+        )
+        <span class="hljs-comment"># self.dropout = nn.Dropout(dropout)</span>
+        self.dropout = dropout
+        self.softmax = nn.Softmax(dim=-<span class="hljs-number">1</span>)
+        self.num_heads = num_heads
+        self.scale = in_channels ** -<span class="hljs-number">0.5</span>
+    
+        self._init_weights()
+    
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_init_weights</span>(<span class="hljs-params">self</span>):
+        nn.init.xavier_uniform_(self.qkv_transform.weight)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">drop_attn</span>(<span class="hljs-params">self, attn</span>):
+        B, h, N, _ = attn.shape
+        mask = torch.rand((B, h, N, N), device=attn.device) &lt; self.dropout
+        attn[mask] = <span class="hljs-built_in">float</span>(<span class="hljs-string">&#x27;-inf&#x27;</span>)
+        <span class="hljs-keyword">return</span> attn
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, x</span>):
+        B, C, H, W = x.shape
+        qkv = self.qkv_transform(x)
+        q, k, v = torch.chunk(qkv, <span class="hljs-number">3</span>, dim=<span class="hljs-number">1</span>)
+        q, k, v = <span class="hljs-built_in">map</span>(<span class="hljs-keyword">lambda</span> t: rearrange(t, <span class="hljs-string">&#x27;B (h d) H W -&gt; B h (H W) d&#x27;</span>, h=self.num_heads), (q, k, v))
+        
+        attn = (q @ k.transpose(-<span class="hljs-number">2</span>, -<span class="hljs-number">1</span>)) * self.scale <span class="hljs-comment"># (B, h, H*W, H*W)</span>
+        attn = self.drop_attn(attn)
+        x = self.softmax(attn) @ v
+        x = rearrange(x, <span class="hljs-string">&#x27;B h (H W) d -&gt; B (h d) H W&#x27;</span>, H=H, W=W)
+        <span class="hljs-keyword">return</span> x
+</code></pre>
+<blockquote>
+<p>使用了卷积实现Q K V的线性变换。</p>
+</blockquote>
+<h3 id="feed-forward-network-ffn">Feed Forward Network (FFN)</h3>
+<p>Feed Forward Network 实际上就是一个多层感知机（MLP）。它对每个位置的特征向量进行相同的变化，因此是一个feature-wise的操作。</p>
+<pre><code class="language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">FFN</span>(nn.Module):
+    <span class="hljs-string">&quot;&quot;&quot;
+    Feed Forward Network for images
+    Input:
+        - x: (B, C, H, W)
+    Output:
+        - x: (B, C, H, W)
+    &quot;&quot;&quot;</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">
+            self,
+            in_channels: <span class="hljs-built_in">int</span>,
+            hidden_channels: <span class="hljs-built_in">int</span>,
+            dropout: <span class="hljs-built_in">float</span> = <span class="hljs-number">0.0</span>
+        </span>):
+        <span class="hljs-built_in">super</span>().__init__()
+        self.ffn = nn.Sequential(
+            nn.Conv2d(in_channels, hidden_channels, kernel_size=<span class="hljs-number">1</span>),
+            nn.GELU(),
+            nn.Dropout(dropout),
+
+            nn.Conv2d(hidden_channels, in_channels, kernel_size=<span class="hljs-number">1</span>),
+            nn.Dropout(dropout),
+        )
+    
+        self._init_weights()
+    
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_init_weights</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-keyword">for</span> m <span class="hljs-keyword">in</span> self.modules():
+            <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(m, nn.Conv2d):
+                nn.init.xavier_uniform_(m.weight)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, x</span>):
+        <span class="hljs-keyword">return</span> self.ffn(x)
+</code></pre>
+<h3 id="patch-embedding">Patch Embedding</h3>
+<p>Patch Embedding 是将图像分割成多个 patch，并将每个 patch 转换成一个特征向量。这个过程可以通过一个卷积层来实现。</p>
+<pre><code class="language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">VisionTransformer</span>(nn.Mudule):
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, ...</span>):
+        self.patchify = nn.Conv2d(
+            in_channels=in_channels,
+            out_channels=d_model,
+            kernel_size=patch_size,
+            stride=patch_size,
+            padding=<span class="hljs-number">0</span>,
+            bias=<span class="hljs-literal">True</span>,
+        )
+</code></pre>
+<h2 id="类不均衡现象的解决方案要求22必做部分">类不均衡现象的解决方案（要求2.2，必做部分）</h2>
+<h3 id="self-supervised-pre-training-仅使用训练集不添加新数据">Self-supervised pre-training （仅使用训练集，不添加新数据）</h3>
+<p>我们设计了一个简单的自监督训练编解码器模块，其中编码器为Vit架构，而解码器则使用了卷积和反卷积神经网络。我们将编解码器模型在训练集 <code>CIFAR10_imbalanced</code> 进行自监督训练，然后将编码器的参数迁移到分类任务中。</p>
+<p>将 <code>VisionTransformer</code> 的结构做如下修改：</p>
+<pre><code class="language-python">self.header = nn.Sequential(
+    nn.Flatten(),
+    nn.Linear(d_model * H * W, (d_model*H*W) // <span class="hljs-number">2</span>),
+    nn.GELU(),
+    nn.Linear((d_model*H*W) // <span class="hljs-number">2</span>, num_classes),
+) <span class="hljs-keyword">if</span> classifier <span class="hljs-keyword">else</span> nn.Sequential(
+    nn.ConvTranspose2d(d_model, in_channels,
+        kernel_size=patch_size, stride=patch_size),
+    nn.GELU(),
+    nn.Conv2d(in_channels, in_channels,
+        kernel_size=<span class="hljs-number">3</span>, padding=<span class="hljs-number">1</span>, stride=<span class="hljs-number">1</span>),
+    nn.Tanh(),
+)
+</code></pre>
+<p>即可得到一个简单的自监督编码器。</p>
+<p>当我们训练好编码器后，我们将其参数迁移到分类任务中。在微调的过程中，我们将编码器参数的学习率设置为原来的 1/100，以防止过拟合。</p>
+<h3 id="data-augmentation">Data Augmentation</h3>
+<p>数据增强对于绝大部分深度学习任务来说，可以做到防止过拟合的效果。但是在本实验中，我们发现，过分的数据增强会导致更大的过拟合程度。对此，我们的解释是： 训练集 <code>CIFAR10_imbalanced</code> 和测试集 <code>CIFAR10_balance</code> 的分布差异过大，导致模型在训练集上的表现并不能很好的泛化到测试集上。</p>
+<p>因此，在本实验中，我们只选用了两种简单的数据增强方式：RandomHorizontalFlip 和 RandomCrop。</p>
+<pre><code class="language-python">self.tf = transforms.Compose([
+    transforms.Normalize(mean=(<span class="hljs-number">0.5</span>, <span class="hljs-number">0.5</span>, <span class="hljs-number">0.5</span>),
+                    std=(<span class="hljs-number">0.5</span>, <span class="hljs-number">0.5</span>, <span class="hljs-number">0.5</span>)),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomResizedCrop((<span class="hljs-number">32</span>, <span class="hljs-number">32</span>), scale=(<span class="hljs-number">0.8</span>, <span class="hljs-number">1.0</span>),
+                    ratio=(<span class="hljs-number">0.9</span>, <span class="hljs-number">1.1</span>), antialias=<span class="hljs-literal">None</span>),
+])
+</code></pre>
+<p>我们还发现，如果使用了 ColorJitter 这样的数据增强方式，会导致模型在训练集上的表现更差。</p>
+<h3 id="class-weighted-cross-entropy-loss">Class Weighted Cross Entropy Loss</h3>
+<p>由于训练集 <code>CIFAR10_imbalanced</code> 中的类别分布不均衡，这会导致模型在训练过程中的梯度更加偏向于优化数量较多的类别。为了解决这个问题，我们将 Cross Entropy Loss 的权重设置为各个类别的倒数。具体而言，对于类别为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span> 的样本，其权重为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>N</mi><msub><mi>N</mi><mi>i</mi></msub></mfrac></mrow><annotation encoding="application/x-tex">N \over {N_i}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.3174em;vertical-align:-0.4451em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8723em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:-0.109em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4451em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>。其中 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span> 为总样本数，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">N_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 为类别 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span> 的样本数。</p>
+<pre><code class="language-python">cls_weight = torch.tensor([v <span class="hljs-keyword">for</span> (_, v) <span class="hljs-keyword">in</span> train_dataset.cls_cnt])
+cls_weight = cls_weight.<span class="hljs-built_in">sum</span>() / cls_weight
+cls_weight = cls_weight / cls_weight.<span class="hljs-built_in">sum</span>()
+ce_loss_fn = torch.nn.CrossEntropyLoss(cls_weight.to(train_cfg.device))
+</code></pre>
+<h3 id="online-hard-example-mining">Online Hard Example Mining</h3>
+<p>这个名字一听起来就很高大上，但实际上就是在训练过程中筛选部分比较难分类的样本，并仅仅使用这部分样本进行反向传播，优化网络参数。那么怎么选出这部分样本呢？对于分类问题来说，只需要判断某个样本的分类损失即可。代码如下：</p>
+<pre><code class="language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">OHEM_CELoss</span>(nn.Module):
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, ratio=<span class="hljs-number">0.5</span>, **kwargs</span>):
+        <span class="hljs-built_in">super</span>().__init__()
+        self.ratio = ratio
+        self.loss_fn = nn.CrossEntropyLoss(reduction=<span class="hljs-string">&#x27;none&#x27;</span>, **kwargs)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, pred, target</span>):
+        loss = self.loss_fn(pred, target)
+        num = <span class="hljs-built_in">int</span>(self.ratio * loss.size(<span class="hljs-number">0</span>))
+        loss, _ = loss.topk(num)
+        <span class="hljs-keyword">return</span> loss.mean()
+</code></pre>
+<h3 id="整体效果">整体效果</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Vanilla Algorithm</th>
+<th style="text-align:center">Improved Algorithm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><img src="file:////data2/nyw/study/dlcv/report3/image/report3/vanilla_alg.png" alt="vanilla_alg"></td>
+<td style="text-align:center"><img src="file:////data2/nyw/study/dlcv/report3/image/report3/improved.png" alt="improved_alg"></td>
+</tr>
+</tbody>
+</table>
+<p>[💡]对效果提升最明显的改善方法实际上是 Self-Supvised Pre-training，可能是因为自监督的过程实际上是 class-free 的。同时，Vit框架下的自监督训练可以让模型学会区分不同的“子图”，这时因为Attention作为其核心模块，从本质上来说实在计算同一张图像不同子图之间的自相关关系。相似性大的子图，其特征向量的夹角会比较小，相似性小的子图，其特征向量的夹角会比较大。自监督的学习可以让模型学会区分不同的图像部分，这与自然语言处理的预训练有着异曲同工之妙。</p>
+<h2 id="分析vit不同模块对分类结果的影响要求23必做部分">分析ViT不同模块对分类结果的影响（要求2.3，必做部分）</h2>
+<h3 id="默认实验设置">默认实验设置</h3>
+<p>为了方便描述，以下每个实验仅改变一个超参数，其他超参数保持不变。默认实验设置如下：</p>
+<pre><code class="language-python"><span class="hljs-meta">@dataclass</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ModelConfig</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Vit Model configuration&quot;&quot;&quot;</span>
+    num_classes: <span class="hljs-built_in">int</span> = <span class="hljs-number">10</span>
+    in_channels: <span class="hljs-built_in">int</span> = <span class="hljs-number">3</span>
+    img_size: <span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">int</span>] = (<span class="hljs-number">32</span>, <span class="hljs-number">32</span>)
+    patch_size: <span class="hljs-built_in">int</span> = <span class="hljs-number">4</span>
+    d_model: <span class="hljs-built_in">int</span> = <span class="hljs-number">256</span>
+    num_heads: <span class="hljs-built_in">int</span> = <span class="hljs-number">4</span>
+    num_layers: <span class="hljs-built_in">int</span> = <span class="hljs-number">6</span>
+    ffn_hidden_channels: <span class="hljs-built_in">int</span> = <span class="hljs-number">512</span>
+    dropout: <span class="hljs-built_in">float</span> = <span class="hljs-number">0.1</span>
+    classifier: <span class="hljs-built_in">bool</span> = <span class="hljs-literal">True</span>
+</code></pre>
+<h3 id="patch-size的影响">Patch Size的影响</h3>
+<p>我们分别使用了 <code>patch_size=4</code> 、 <code>patch_size=8</code> 和 <code>patch_size=16</code> 三种不同的 patch size 进行实验，得到了如下的结果：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Patch Size = 4</th>
+<th style="text-align:center">Patch Size = 8</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><img src="file:////data2/nyw/study/dlcv/report3/image/report3/ps_4.png" alt="ps_4"></td>
+<td style="text-align:center"><img src="file:////data2/nyw/study/dlcv/report3/image/report3/ps_8.png" alt="ps_8"></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Patch Size = 16</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><img src="file:////data2/nyw/study/dlcv/report3/image/report3/ps_16.png" alt="ps_16"></td>
+</tr>
+</tbody>
+</table>
+<p>可以看到，当 Patch Size 为 16 时，模型的表现骤降，这是因为 Patch Size 过大，导致了模型无法捕捉到图像中的细节信息。</p>
+<h3 id="embedding-dimension-的影响">Embedding Dimension 的影响</h3>
+<p>我们分别尝试了 <code>d_model=64</code> 、 <code>d_model=128</code> 、 <code>d_model=256</code> 和 <code>d_model=512</code> 四种不同的 embedding dimension 进行实验，得到了如下的结果：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">d_model = 64</th>
+<th style="text-align:center">d_model = 128</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><img src="file:////data2/nyw/study/dlcv/report3/image/report3/d_64.png" alt="d_128"></td>
+<td style="text-align:center"><img src="file:////data2/nyw/study/dlcv/report3/image/report3/d_128.png" alt="d_256"></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">d_model = 256</th>
+<th style="text-align:center">d_model = 512</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><img src="file:////data2/nyw/study/dlcv/report3/image/report3/d_256.png" alt="d_512"></td>
+<td style="text-align:center"><img src="file:////data2/nyw/study/dlcv/report3/image/report3/d_512.png" alt="d_1024"></td>
+</tr>
+</tbody>
+</table>
+<p>可以看到，随着 embedding dimension 的增大，模型的表现逐渐提升。十分可惜的是，我只有 24G 的显存资源，无法尝试更大的 embedding dimension。</p>
+<h3 id="number-of-heads-的影响">Number of Heads 的影响</h3>
+<p>我们分别尝试了 <code>num_heads=2</code> 、 <code>num_heads=4</code> 、 <code>num_heads=8</code> 和 <code>num_heads=16</code> 四种不同的 head 数目进行实验，得到了如下的结果：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">num_heads = 2</th>
+<th style="text-align:center">num_heads = 4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><img src="file:////data2/nyw/study/dlcv/report3/image/report3/nh_2.png" alt="nh_2"></td>
+<td style="text-align:center"><img src="file:////data2/nyw/study/dlcv/report3/image/report3/nh_4.png" alt="nh_4"></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">num_heads = 8</th>
+<th style="text-align:center">num_heads = 16</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><img src="file:////data2/nyw/study/dlcv/report3/image/report3/nh_8.png" alt="nh_8"></td>
+<td style="text-align:center"><img src="file:////data2/nyw/study/dlcv/report3/image/report3/nh_16.png" alt="nh_16"></td>
+</tr>
+</tbody>
+</table>
+<p>可以发现，在 num_heads = 8 时，模型的表现达到了最好。过大/过小的 num_heads 都会导致模型的表现下降。</p>
+<h2 id="vit轻量化要求24选做部分">ViT轻量化（要求2.4，选做部分）</h2>
+<p>ViT（Vision Transformer）轻量化的主要目标是减少模型的参数和计算复杂度，同时保持性能。通过技术如知识蒸馏、权重剪枝和模型量化，ViT可以在移动设备和边缘计算中更有效地运行。轻量化版本通常采用更小的输入分辨率和减少层数，确保在资源有限的情况下仍能提供出色的视觉识别能力。这种方法让ViT在处理复杂图像任务时，兼顾效率与效果。</p>
+<p>xFormers是一个旨在加速Transformer相关研究的工具箱，提供了一系列可定制的构建模块。这些模块独立且可自定义，无需繁琐的代码，使得研究人员可以方便地在视觉、自然语言处理等多个领域中应用。xFormers关注前沿研究，包含许多尚未在主流库（如PyTorch）中实现的最新组件。此外，xFormers特别注重效率，所有组件都经过优化，以确保快速的迭代速度和良好的内存利用率。它还集成了自定义CUDA内核，并在必要时调用其他库，从而进一步提升性能。</p>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>
